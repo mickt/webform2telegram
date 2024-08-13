@@ -225,6 +225,8 @@ add_action('init', 'webform2telegram_register_shortcode');
 
 
 function webform2telegram_form_shortcode() {
+    global $wp;
+
     $options = get_option('webform2telegram_options');
     if ($options === false || empty($options['form_fields'])) {
         return '<p>The form is not configured yet.</p>';
@@ -233,9 +235,14 @@ function webform2telegram_form_shortcode() {
     $form_fields = $options['form_fields'];
     $custom_css = isset($options['custom_css']) ? $options['custom_css'] : '';
 
+    // Якщо глобальна змінна $wp не визначена, ініціалізуємо її
+    if (is_null($wp)) {
+        $wp = new WP();
+    }
+
     ob_start();
     ?>
-    <form id="webform2telegram-form" method="post" action="<?php echo esc_url($_SERVER['REQUEST_URI']); ?>">
+    <form id="webform2telegram-form" method="post" action="<?php echo esc_url(home_url(add_query_arg(array(), $wp->request))); ?>">
         <?php foreach ($form_fields as $field) : ?>
             <div class="form-group">
                 <?php if ($field['type'] == 'text') : ?>
@@ -258,6 +265,8 @@ function webform2telegram_form_shortcode() {
     <?php
     return ob_get_clean();
 }
+
+
 
 
 function webform2telegram_handle_form_submission() {
@@ -295,7 +304,11 @@ function webform2telegram_handle_form_submission() {
         } else {
             echo '<p>The form has been sent successfully!</p>';
         }
+
+        wp_redirect(esc_url(home_url(add_query_arg(array(), $wp->request))));
+        exit;
     }
 }
+
 
 add_action('wp', 'webform2telegram_handle_form_submission');
