@@ -22,7 +22,3 @@ Requirements:
 
 A Telegram bot and its API token.
 The chat_id of the Telegram chat where you want to receive the submissions.
-
-License:
-
-This plugin is open-source and available under the MIT License.
